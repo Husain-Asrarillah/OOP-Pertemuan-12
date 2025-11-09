@@ -55,7 +55,7 @@ Empat operasi dasar pengelolaan data yang diimplementasikan menggunakan `EntityM
 | Fungsionalitas | Metode Kunci | Deskripsi |
 | :--- | :--- | :--- |
 | **Tampil Data (Read)** | `tampilDataKomik()` / `tampilDataPengarang()` | Mengisi `JTable` dengan data dari JPA (`findAll`), diurutkan berdasarkan ID (`ORDER BY ID`). |
-| **Insert Komik** | `jSimpanActionPerformed` | Mengambil data dari *form*, menggunakan `loadPengarangToComboBox()` (sebelumnya) untuk mendapatkan objek **Pengarang** (FK), kemudian `em.persist(komik)`. |
+| **Insert Komik/Pengarang** | `jSimpanActionPerformed` /  `jSimpanActionPerformed1` | Mengambil data dari *form*, menggunakan `loadPengarangToComboBox()` (sebelumnya) untuk mendapatkan objek **Pengarang** (FK), kemudian `em.persist()`. |
 | **Update Komik/Pengarang**| `jButton12ActionPerformed` / `jSimpan2ActionPerformed` | Tombol `UPDATE` memicu `tampilkanDataKomikUntukEdit(ID)` untuk memuat data ke *dialog*. Simpan menggunakan `em.merge(dataLama)`. |
 | **Delete Komik/Pengarang**| `jButton13ActionPerformed` / `jButton3ActionPerformed` | Memeriksa pilihan, menampilkan `JOptionPane.showConfirmDialog` kustom (dengan *HTML styling*), dan mengeksekusi `em.remove(data)`. |
 | **Upload CSV** | `importCsvKomik(File)` / `importCsvPengarang(File)` | Membaca *file* CSV baris per baris, mem-*parsing* data, dan menyimpannya menggunakan `em.persist()`. *ComboBox* Pengarang di-*refresh* setelah impor. |
@@ -69,47 +69,3 @@ Empat operasi dasar pengelolaan data yang diimplementasikan menggunakan `EntityM
 | **Cetak Pengarang** | `jButton5ActionPerformed` / `cetakLaporanPengarang()` | Mengkompilasi `reportPengarang.jrxml` (yang berisi *query* `SELECT... FROM pengarang`) dan mengisi laporan menggunakan koneksi **JDBC**. |
 
 -----
-
-## 📋 Detail Implementasi
-
-### Koneksi Database (JDBC)
-
-```java
-static final String URL = "jdbc:postgresql://localhost:5432/Toko_komik";
-static final String USER = "postgres"; 
-static final String PASSWORD = "170206"; 
-
-public static Connection getConnection() {
-    Connection conn = null;
-    try {
-        conn = DriverManager.getConnection(URL, USER, PASSWORD);
-        System.out.println("Koneksi ke PostgreSQL berhasil!");
-    } catch (SQLException e) {
-        System.out.println("Koneksi gagal: " + e.getMessage());
-    }
-    return conn;
-}
-```
-
-### Contoh Konfirmasi Hapus (Aksi Tombol)
-
-```java
-private void jButton13ActionPerformed(java.awt.event.ActionEvent evt) {
-    int barisTerpilih = jTableKomik.getSelectedRow();
-    if (barisTerpilih == -1) {
-        JOptionPane.showMessageDialog(this, "Silakan pilih data Komik yang ingin diubah terlebih dahulu!", "Peringatan", JOptionPane.WARNING_MESSAGE);
-        return;
-    }
-    // ... (ambil ID dan Judul)
-    int konfirmasi = JOptionPane.showConfirmDialog(this, 
-        "<html><b>ANDA YAKIN?</b> Data Komik berikut akan dihapus secara permanen:<br><br>" +
-        "&nbsp; &nbsp; <b>ID:</b> " + idKomikTerpilih + "<br>" +
-        "&nbsp; &nbsp; <b>Judul:</b> " + judulKomik + "<br><br>" +
-        "Aksi ini tidak dapat dibatalkan.</html>",
-        "KONFIRMASI HAPUS DATA", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-    
-    if (konfirmasi == JOptionPane.YES_OPTION) {
-        hapusDataKomik(idKomikTerpilih);
-    }
-}
-```
